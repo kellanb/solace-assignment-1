@@ -4,12 +4,40 @@
 
 @layer base {
   :root {
-    color: #0f172a;
+    --color-brand-50: #ecfdf5;
+    --color-brand-100: #d1fae5;
+    --color-brand-500: #10b981;
+    --color-brand-600: #059669;
+    --color-brand-900: #064e3b;
+    --color-slate-900: #0f172a;
+    --color-slate-600: #475569;
+    --glass: rgba(255, 255, 255, 0.85);
+    color: var(--color-slate-900);
     background-color: #f8fafc;
   }
 
   body {
     @apply bg-slate-50 text-slate-900 antialiased;
+    background-image: radial-gradient(
+        circle at top,
+        rgba(16, 185, 129, 0.08),
+        transparent 45%
+      ),
+      linear-gradient(180deg, #ffffff 0%, #f8fafc 60%, #eef2ff 100%);
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+    color: var(--color-brand-900);
   }
 }
 
