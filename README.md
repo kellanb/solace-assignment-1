@@ -39,3 +39,34 @@ npx drizzle-kit push
 ```bash
 curl -X POST http://localhost:3000/api/seed
 ```
+
+### Advocate API contract
+
+All frontend search/filter operations go through the Next.js API route at `/api/advocates` (no server actions). The endpoint supports pagination and filtering:
+
+| Query param | Description |
+| --- | --- |
+| `q` | Text search across name, city, degree (case-insensitive). |
+| `city` | Exact match city filter (use `"all"` to disable). |
+| `specialties` | Comma-separated specialties; results must include all selected values. |
+| `minExperience` | Minimum years of experience (integer). |
+| `sort` | `name` (default) or `experience`. |
+| `page`, `pageSize` | Pagination controls (page size capped at 50). |
+
+The response shape is:
+
+```json
+{
+  "data": [/* advocates */],
+  "meta": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 200,
+    "hasNextPage": true,
+    "source": "database",
+    "durationMs": 12.5
+  }
+}
+```
+
+If a database connection is not configured, the API falls back to the seeded data but still applies query filters/pagination so the frontend contract remains identical.

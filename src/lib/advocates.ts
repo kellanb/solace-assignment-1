@@ -9,21 +9,61 @@ export type Advocate = {
   phoneNumber: number;
 };
 
-type AdvocateResponse = {
+export type AdvocateResponse = {
   data: Advocate[];
+  meta: {
+    page: number;
+    pageSize: number;
+    total: number;
+    hasNextPage: boolean;
+    source: "database" | "seed";
+    durationMs?: number;
+  };
+};
+
+export type AdvocateQueryParams = {
+  q?: string;
+  city?: string | null;
+  specialties?: string[];
+  minExperience?: number;
+  sort?: "name" | "experience";
+  page?: number;
+  pageSize?: number;
+};
+
+const toQueryString = (params: AdvocateQueryParams) => {
+  const search = new URLSearchParams();
+
+  if (params.q) search.set("q", params.q);
+  if (params.city) search.set("city", params.city);
+  if (params.specialties && params.specialties.length > 0) {
+    search.set("specialties", params.specialties.join(","));
+  }
+  if (typeof params.minExperience === "number") {
+    search.set("minExperience", params.minExperience.toString());
+  }
+  if (params.sort) search.set("sort", params.sort);
+  if (params.page) search.set("page", params.page.toString());
+  if (params.pageSize) search.set("pageSize", params.pageSize.toString());
+
+  return search.toString();
 };
 
 /**
- * Shared fetch helper so components can keep the data contract in sync with the API.
- * Centralizing this logic makes it easier to add caching/error policies later.
+ * Fetch a page of advocates using the paginated Next.js API.
  */
-export async function fetchAdvocates(signal?: AbortSignal): Promise<Advocate[]> {
-  const response = await fetch("/api/advocates", { signal });
+export async function fetchAdvocatesPage(
+  params: AdvocateQueryParams,
+  signal?: AbortSignal
+): Promise<AdvocateResponse> {
+  const queryString = toQueryString(params);
+  const url = queryString ? `/api/advocates?${queryString}` : "/api/advocates";
+
+  const response = await fetch(url, { signal });
 
   if (!response.ok) {
     throw new Error(`Failed to load advocates. Status: ${response.status}`);
   }
 
-  const payload = (await response.json()) as AdvocateResponse;
-  return payload?.data ?? [];
+  return (await response.json()) as AdvocateResponse;
 }
